@@ -32,7 +32,7 @@
           box-shadow: 5px 8px #8607ce;
           width: 80%;
           max-width: 1200px;
-          aspect-ratio: 16 / 9;
+          aspect-ratio: 19.5 / 9;
           display: flex;
           justify-content: center;
           align-items: center;
@@ -69,13 +69,63 @@
 <body>
 <a href="index.html" class="back-button">Back to Home</a>
 <div class="video-container">
-  <video controls>
-    <source
-        src="https://storage.googleapis.com/website-resources-keenan/introduction.mp4"
-        type="video/mp4">
+  <video id="videoPlayer" controls>
     Your browser does not support the video tag.
   </video>
 </div>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Function to get URL parameters
+    function getUrlParameter(name) {
+      name = name.replace(/\[/, '\\[').replace(/]/, '\\]');
+      const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+      const results = regex.exec(location.search);
+      return results === null ? '' : decodeURIComponent(
+          results[1].replace(/\+/g, ' '));
+    }
+
+    // Get the 'person' parameter from the URL
+    const person = getUrlParameter('person');
+
+    // Set up the video source
+    const videoPlayer = document.getElementById('videoPlayer');
+    const videoContainer = document.querySelector('.video-container');
+
+    function showError(message) {
+      const errorMessage = document.createElement('p');
+      errorMessage.textContent = message;
+      errorMessage.style.color = 'white';
+      errorMessage.style.textAlign = 'center';
+      videoContainer.innerHTML = '';
+      videoContainer.appendChild(errorMessage);
+    }
+
+    if (person) {
+      const videoSrc = 'https://storage.googleapis.com/website-resources-keenan/'
+          + person + '.mp4';
+      const errorMsg = 'No personal introduction video exists for "' + person + '"'
+
+      fetch(videoSrc, {method: 'HEAD'})
+      .then(response => {
+        if (response.ok) {
+          videoPlayer.src = videoSrc;
+        } else {
+          showError(errorMsg);
+        }
+      })
+      .catch(() => {
+        showError(errorMsg);
+      });
+
+      videoPlayer.onerror = function () {
+        showError(errorMsg);
+      };
+    } else {
+      // No person parameter provided
+      showError('No video specified')
+    }
+  });
+</script>
 </body>
 
 </html>

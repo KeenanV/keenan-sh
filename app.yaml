@@ -1,6 +1,12 @@
 runtime: python311
 
 handlers:
+  - url: /video
+    static_files: video
+    upload: video
+    mime_type: text/html
+    secure: always
+
   - url: /
     static_files: index.html
     upload: index.html
