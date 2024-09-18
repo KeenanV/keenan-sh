@@ -121,7 +121,7 @@
       .dialog {
           display: none;
           position: fixed;
-          z-index: 1000;
+          z-index: 2000;
           left: 0;
           top: 0;
           width: 100%;
@@ -256,6 +256,158 @@
           color: rgb(219, 0, 0);
       }
 
+      .projects-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+          transition: background-color 0.3s ease;
+      }
+
+      .projects-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 50px;
+          padding: 20px;
+          max-width: 80%;
+          position: relative;
+          z-index: 1001;
+      }
+
+      .project-square {
+          width: 250px;
+          height: 250px;
+          position: relative;
+          z-index: 1;
+          background-color: #111111;
+          color: #fff;
+          cursor: pointer;
+          box-shadow: 5px 8px #8607ce;
+          transition: all 0.1s ease, transform 0.1s ease;
+          transform-style: preserve-3d;
+      }
+
+      .project-square::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          box-shadow: 5px 8px #450368;
+          opacity: 0;
+          transition: opacity 0.3s ease, all 0.1s ease, transform 0.1s ease;
+          pointer-events: none;
+      }
+
+      .project-square.darkened::after {
+          opacity: 1;
+      }
+
+      .project-square.darkened:hover::after {
+          box-shadow: 7px 10px #450368;
+      }
+
+      .project-square.darkened:active::after {
+          transform: translateY(3px);
+          box-shadow: 0 0 #450368;
+      }
+
+      .project-square:hover {
+          transform: translateY(-5px) rotateY(10deg);
+          box-shadow: 7px 10px #8607ce;
+      }
+
+      .project-square:active {
+          transform: translateY(3px);
+          box-shadow: 0 0 #8607ce;
+      }
+
+      .project-square.flipped {
+          transition: transform 0.6s ease;
+          transform: rotateY(180deg) scale(2);
+          z-index: 1003;
+          box-shadow: none;
+      }
+
+      .project-square.flipped::after {
+          opacity: 0;
+      }
+
+      .darkened {
+          background-color: rgba(0, 0, 0, 0.8);
+      }
+
+      .project-square-front, .project-square-back {
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          backface-visibility: hidden;
+          display: flex;
+          flex-direction: column; /* Stack items vertically */
+          justify-content: center;
+          align-items: center;
+          font-weight: normal;
+          padding: 20px; /* Add padding for content */
+          box-sizing: border-box; /* Include padding in width and height */
+      }
+
+      .project-square-back {
+          transform: rotateY(180deg);
+          background-color: #222222;
+          text-align: center;
+          justify-content: flex-start; /* Align items to the top */
+      }
+
+      .project-square-back h2 {
+          /* Space between header and description */
+          margin: 0 0 10px;
+          font-size: 1.5em;
+          font-weight: bold;
+      }
+
+      .project-square-back p {
+          margin: 0;
+          font-size: 1em;
+          line-height: 1.5;
+      }
+
+      .slide-out {
+          animation: slideOut 0.5s forwards;
+      }
+
+      .slide-in {
+          animation: slideIn 0.5s forwards;
+      }
+
+      @keyframes slideOut {
+          0% {
+              transform: translateX(0);
+              opacity: 1;
+          }
+          100% {
+              transform: translateX(-100%);
+              opacity: 0;
+          }
+      }
+
+      @keyframes slideIn {
+          0% {
+              transform: translateX(100%);
+              opacity: 0;
+          }
+          100% {
+              transform: translateX(0);
+              opacity: 1;
+          }
+      }
+
       @media screen and (max-height: 500px) {
           .container {
               align-items: flex-start;
@@ -295,12 +447,13 @@
     <img src="profile.png" alt="Keenan Van Deusen" class="profile-pic">
     <div class="name">Keenan Van Deusen</div>
     <div class="title">Security Engineer</div>
-    <a href="https://github.com/KeenanV" class="link-button"><i
-        class="fas fa-code-branch"></i>Projects</a>
+    <a href="#" class="link-button" id="projectsButton"
+       data-action="projects"><i class="fas fa-code-branch"></i>Projects</a>
     <a href="https://www.linkedin.com/in/keenanvandeusen" class="link-button"><i
         class="fas fa-user"></i>About
       Me</a>
-    <a href="#" class="link-button"><i class="fas fa-envelope"></i>Get In Touch</a>
+    <a href="#" class="link-button" data-action="contact"><i
+        class="fas fa-envelope"></i>Get In Touch</a>
     <div class="social-icons">
       <a href="https://x.com/keenanvandeusen"><i
           class="fab fa-x-twitter"></i></a>
@@ -309,44 +462,100 @@
       <a href="https://www.linkedin.com/in/keenanvandeusen"><i
           class="fab fa-linkedin"></i></a>
     </div>
-    <div id="contactDialog" class="dialog">
-      <div class="dialog-content">
-        <h2>Get in touch</h2>
-        <form id="contactForm">
-          <label for="name"></label><input type="text" id="name"
-                                           placeholder="name" required>
-          <label for="email"></label><input type="email" id="email"
-                                            placeholder="email" required>
-          <label for="message"></label><textarea id="message"
-                                                 placeholder="message"
-                                                 required></textarea>
-          <div class="dialog-buttons">
-            <button type="button" id="cancelButton">cancel</button>
-            <button type="submit">send</button>
-          </div>
-        </form>
+  </div>
+</div>
+<div id="contactDialog" class="dialog">
+  <div class="dialog-content">
+    <h2>Get in touch</h2>
+    <form id="contactForm">
+      <label for="name"></label><input type="text" id="name"
+                                       placeholder="name" required>
+      <label for="email"></label><input type="email" id="email"
+                                        placeholder="email" required>
+      <label for="message"></label><textarea id="message"
+                                             placeholder="message"
+                                             required></textarea>
+      <div class="dialog-buttons">
+        <button type="button" id="cancelButton">cancel</button>
+        <button type="submit">send</button>
       </div>
-    </div>
+    </form>
+  </div>
+</div>
+<div class="projects-container" style="display: none;">
+  <div class="overlay" style="display: none;"></div>
+  <div class="projects-grid">
+    <!-- Project squares will be added here dynamically -->
   </div>
 </div>
 <script>
-  const getInTouchButton = document.querySelector('.link-button[href^="#"]');
+  const projectsButton = document.getElementById('projectsButton');
+  const getInTouchButton = document.querySelector(
+      '.link-button[data-action="contact"]');
   const contactDialog = document.getElementById('contactDialog');
   const cancelButton = document.getElementById('cancelButton');
   const contactForm = document.getElementById('contactForm');
+  const mainContent = document.querySelector('.content');
+  const projectsContainer = document.querySelector('.projects-container');
+  const projectsGrid = document.querySelector('.projects-grid');
 
   console.log("Get in Touch button:", getInTouchButton);
   console.log("Contact dialog:", contactDialog);
 
-  if (getInTouchButton) {
-    getInTouchButton.addEventListener('click', function (e) {
-      console.log("Get in Touch button clicked");
-      e.preventDefault();
-      contactDialog.style.display = 'block';
-    });
-  } else {
-    console.error("Get in Touch button not found");
+  function switchToProjects() {
+    mainContent.classList.remove('slide-in');
+    mainContent.classList.add('slide-out');
+    setTimeout(() => {
+      mainContent.style.display = 'none';
+      projectsContainer.style.display = 'flex';
+      projectsContainer.classList.remove('slide-out');
+      projectsContainer.classList.add('slide-in');
+      loadProjects();
+    }, 500);
   }
+
+  function switchToMain() {
+    projectsContainer.classList.remove('slide-in');
+    projectsContainer.classList.add('slide-out');
+    setTimeout(() => {
+      projectsContainer.style.display = 'none';
+      mainContent.style.display = 'block';
+      mainContent.classList.remove('slide-out');
+      mainContent.classList.add('slide-in');
+      resetMainPage();
+    }, 500);
+  }
+
+  function resetMainPage() {
+    // Reset any state that might have been changed
+    document.body.style.overflow = '';
+    contactDialog.style.display = 'none';
+    document.body.style.backgroundColor = '';
+  }
+
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.link-button')) {
+      e.preventDefault();
+      const action = e.target.closest('.link-button').dataset.action;
+
+      if (action === 'contact') {
+        console.log("Get in Touch button clicked");
+        contactDialog.style.display = 'block';
+        document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+      } else if (action === 'projects') {
+        console.log("Projects button clicked");
+        switchToProjects();
+      }
+    }
+  });
+
+  // Add a click event listener to close the dialog
+  document.addEventListener('click', function (e) {
+    if (e.target === contactDialog) {
+      contactDialog.style.display = 'none';
+      document.body.style.backgroundColor = '';
+    }
+  });
 
   cancelButton.addEventListener('click', function () {
     contactDialog.style.display = 'none';
@@ -384,6 +593,64 @@
   window.addEventListener('click', function (e) {
     if (e.target === contactDialog) {
       contactDialog.style.display = 'none';
+    }
+  });
+
+  function loadProjects() {
+    projectsGrid.innerHTML = '';
+    for (let i = 1; i <= 8; i++) {
+      const projectSquare = document.createElement('div');
+      projectSquare.className = 'project-square';
+      projectSquare.innerHTML = `
+      <div class="project-square-front">Project ${i}</div>
+      <div class="project-square-back">
+        <h3>Project ${i}</h3>
+        <br>
+        <p>Description for Project ${i}. Here we're talking about the project and have lots to say about it. This is a big paragraph talking about it.</p>
+      </div>
+    `;
+
+      projectsGrid.appendChild(projectSquare);
+    }
+  }
+
+  let currentlyFlippedSquare = null;
+
+  projectsContainer.addEventListener('click', function(e) {
+    const clickedSquare = e.target.closest('.project-square');
+    const allSquares = document.querySelectorAll('.project-square');
+
+    if (currentlyFlippedSquare) {
+      // If clicking outside the flipped square or on another square
+      if (!clickedSquare || clickedSquare !== currentlyFlippedSquare) {
+        currentlyFlippedSquare.classList.remove('flipped');
+        currentlyFlippedSquare.style.zIndex = '';
+        projectsContainer.classList.remove('darkened');
+        allSquares.forEach(square => {
+          square.classList.remove('darkened');
+        });
+        currentlyFlippedSquare = null;
+        if (!clickedSquare) {
+          return;
+        }
+      }
+    }
+
+    if (clickedSquare && clickedSquare !== currentlyFlippedSquare) {
+      clickedSquare.classList.add('flipped');
+      clickedSquare.style.zIndex = '1003';
+      projectsContainer.classList.add('darkened');
+      allSquares.forEach(square => {
+        if (square !== clickedSquare) {
+          square.classList.add('darkened');
+        }
+      });
+      currentlyFlippedSquare = clickedSquare;
+    }
+
+    // Check if we should switch back to main view
+    if (e.target === projectsContainer && !currentlyFlippedSquare) {
+      switchToMain();
     }
   });
 </script>
