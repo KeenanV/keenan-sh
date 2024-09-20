@@ -280,20 +280,40 @@
       }
 
       .project-square {
+          position: relative;
           width: 250px;
           height: 250px;
+          opacity: 0;
+          visibility: hidden;
+      }
+
+      .project-square-inner {
+          width: 100%;
+          height: 100%;
           position: relative;
-          z-index: 1;
+          transform-style: preserve-3d;
+          transition: transform 0.1s ease, box-shadow 0.1s ease;
           border-radius: 40px;
           background-color: #111111;
           color: #fff;
           cursor: pointer;
           box-shadow: 5px 8px #8607ce;
-          transition: all 0.1s ease, transform 0.1s ease;
-          transform-style: preserve-3d;
       }
 
-      .project-square::after {
+      .project-square.visible {
+          opacity: 1;
+          visibility: visible;
+      }
+
+      .project-square.fall-in {
+          animation: fallIn 0.8s ease-in-out forwards;
+      }
+
+      .project-square.fall-out {
+          animation: fallOut 0.5s ease-in forwards;
+      }
+
+      .project-square-inner::after {
           content: '';
           position: absolute;
           top: 0;
@@ -302,43 +322,43 @@
           bottom: 0;
           background-color: rgba(0, 0, 0, 0.7);
           border-radius: 40px;
-          box-shadow: 5px 8px #450368;
+          box-shadow: 5px 8px #2e0142;
           opacity: 0;
-          transition: opacity 0.3s ease, all 0.1s ease, transform 0.1s ease;
           pointer-events: none;
+          transition: opacity 0.3s ease, all 0.1s ease, transform 0.1s ease;
       }
 
-      .project-square.darkened::after {
+      .project-square-inner.darkened::after {
           opacity: 1;
       }
 
-      .project-square.darkened:hover::after {
-          box-shadow: 7px 10px #450368;
+      .project-square-inner.darkened:hover::after {
+          box-shadow: 7px 13px #2e0142;
       }
 
-      .project-square.darkened:active::after {
-          transform: translateY(3px);
-          box-shadow: 0 0 #450368;
+      .project-square-inner.darkened:active::after {
+          transform: translateY(5px);
+          box-shadow: 0 0 #2e0142;
       }
 
-      .project-square:hover {
+      .project-square-inner:hover {
           transform: translateY(-5px) rotateY(10deg);
-          box-shadow: 7px 10px #8607ce;
+          box-shadow: 7px 13px #8607ce;
       }
 
-      .project-square:active {
-          transform: translateY(3px);
+      .project-square-inner:active {
+          transform: translateY(5px);
           box-shadow: 0 0 #8607ce;
       }
 
-      .project-square.flipped {
+      .project-square.flipped .project-square-inner {
           transition: transform 0.6s ease;
           transform: rotateY(180deg) scale(2);
           z-index: 1003;
           box-shadow: none;
       }
 
-      .project-square.flipped::after {
+      .project-square.flipped::after .project-square-inner::after {
           opacity: 0;
       }
 
@@ -360,12 +380,18 @@
           box-sizing: border-box; /* Include padding in width and height */
       }
 
+      .project-square-front {
+          font-weight: bold;
+          font-size: 1.5em;
+          text-align: center;
+      }
+
       .project-square-back {
           border-radius: 20px;
           transform: rotateY(180deg);
-          background-color: #222222;
+          background-color: #1b1b1b;
           text-align: center;
-          justify-content: flex-start; /* Align items to the top */
+          justify-content: space-between; /* Align items to the top */
       }
 
       .project-square-back h2 {
@@ -375,9 +401,16 @@
           font-weight: bold;
       }
 
+      .project-square-back h3 {
+          margin-top: 0;
+          margin-bottom: 10px;
+      }
+
       .project-square-back p {
-          margin: 0;
-          font-size: 1em;
+          flex-grow: 1;
+          overflow-y: auto;
+          margin: 0 0 15px;
+          font-size: 0.65em;
           line-height: 1.5;
       }
 
@@ -387,6 +420,53 @@
 
       .slide-in {
           animation: slideIn 0.5s forwards;
+      }
+
+      .github-button {
+          display: inline-block;
+          background-color: #111111;
+          color: #fff;
+          padding: 7px 5px;
+          border-radius: 5px;
+          text-decoration: none;
+          font-size: 16px;
+          font-weight: bold;
+          transition: all 0.1s ease;
+          box-shadow: 3px 5px #8607ce;
+          border: none;
+          cursor: pointer;
+          align-self: center;
+          width: 80%;
+          margin-top: auto;
+      }
+
+      .github-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 5px 7px #8607ce;
+          background-color: #222222;
+      }
+
+      .github-button:active {
+          transform: translateY(3px);
+          box-shadow: 0 0 #8607ce;
+      }
+
+      .github-button i {
+          margin-right: 5px;
+          font-size: 22px;
+          width: 24px;
+          text-align: center;
+      }
+
+      .project-square-back h3 {
+          margin-top: 10px;
+          margin-bottom: 10px;
+      }
+
+      .project-square-back p {
+          flex-grow: 1;
+          overflow-y: auto;
+          margin-bottom: 15px;
       }
 
       @keyframes slideOut {
@@ -408,6 +488,34 @@
           100% {
               transform: translateX(0);
               opacity: 1;
+          }
+      }
+
+      @keyframes fallIn {
+          0% {
+              transform: translateY(-1000px);
+              opacity: 0;
+          }
+          60% {
+              transform: translateY(25px);
+              opacity: 1;
+          }
+          80% {
+              transform: translateY(-10px);
+          }
+          100% {
+              transform: translateY(0);
+          }
+      }
+
+      @keyframes fallOut {
+          0% {
+              transform: translateY(0);
+              opacity: 1;
+          }
+          100% {
+              transform: translateY(1000px);
+              opacity: 0;
           }
       }
 
@@ -464,6 +572,8 @@
           class="fab fa-signal-messenger"></i></a>
       <a href="https://www.linkedin.com/in/keenanvandeusen"><i
           class="fab fa-linkedin"></i></a>
+      <a href="https://www.github.com/KeenanV"><i
+          class="fab fa-github"></i></a>
     </div>
   </div>
 </div>
@@ -513,34 +623,34 @@
       link: "https://www.github.com/KeenanV/"
     },
     "Project 3": {
-      name: "Project 3",
+      name: "AWS Secure Data Access/Management",
       description: "Soon to add a description.",
       link: "https://www.github.com/KeenanV"
     },
     "Project 4": {
-      name: "Project 4",
+      name: "Secure Messenger",
       description: "Soon to add a description.",
       link: "https://www.github.com/KeenanV"
     },
     "Project 5": {
-      name: "Project 5",
+      name: "iOS App 'One Step'",
       description: "Soon to add a description.",
       link: "https://www.github.com/KeenanV"
     },
     "Project 6": {
-      name: "Project 6",
+      name: "Autonomous Drone Swarm: OFFSET",
       description: "Soon to add a description.",
-      link: "https://www.github.com/KeenanV"
+      link: "https://www.darpa.mil/program/offensive-swarm-enabled-tactics"
     },
     "Project 7": {
-      name: "Project 7",
+      name: "Airspace Tactical Automation System for ASTARTE",
       description: "Soon to add a description.",
-      link: "https://www.github.com/KeenanV"
+      link: "https://www.darpa.mil/news-events/2020-04-07"
     },
     "Project 8": {
-      name: "Project 8",
+      name: "Managing Academies Challenge Evaluation: MACE",
       description: "Soon to add a description.",
-      link: "https://www.github.com/KeenanV"
+      link: "https://github.com/raytheonbbn/mace"
     },
   }
 
@@ -553,22 +663,35 @@
     setTimeout(() => {
       mainContent.style.display = 'none';
       projectsContainer.style.display = 'flex';
-      projectsContainer.classList.remove('slide-out');
-      projectsContainer.classList.add('slide-in');
       loadProjects();
     }, 500);
   }
 
   function switchToMain() {
-    projectsContainer.classList.remove('slide-in');
-    projectsContainer.classList.add('slide-out');
+    const squares = document.querySelectorAll('.project-square');
+    squares.forEach((square, index) => {
+      setTimeout(() => {
+        square.classList.add('fall-out');
+        square.classList.remove('visible', 'fall-in');
+      }, (7 - index) * 100);
+    });
+
     setTimeout(() => {
       projectsContainer.style.display = 'none';
       mainContent.style.display = 'block';
       mainContent.classList.remove('slide-out');
       mainContent.classList.add('slide-in');
       resetMainPage();
-    }, 500);
+    }, squares.length * 100 + 500);
+  }
+
+  function resetProjectsGrid() {
+    const squares = document.querySelectorAll('.project-square');
+    squares.forEach(square => {
+      square.classList.remove('fall-out');
+      square.style.visibility = 'hidden';
+      square.style.opacity = '0';
+    });
   }
 
   function resetMainPage() {
@@ -576,6 +699,7 @@
     document.body.style.overflow = '';
     contactDialog.style.display = 'none';
     document.body.style.backgroundColor = '';
+    resetProjectsGrid();
   }
 
   document.addEventListener('click', function (e) {
@@ -641,20 +765,40 @@
     }
   });
 
+  function getButtonDetails(link) {
+    if (link.includes('github.com')) {
+      return {text: 'View on GitHub', icon: 'fab fa-github'};
+    } else if (link.includes('darpa.mil')) {
+      return {text: 'View on DARPA', icon: 'fas fa-shield-halved'};
+    } else {
+      return {text: 'View Project', icon: 'fas fa-external-link-alt'};
+    }
+  }
+
   function loadProjects() {
     projectsGrid.innerHTML = '';
-    Object.values(projectsData).forEach((project) => {
+    Object.values(projectsData).forEach((project, index) => {
+      const buttonDetails = getButtonDetails(project.link);
       const projectSquare = document.createElement('div');
       projectSquare.className = 'project-square';
       projectSquare.innerHTML = `
-            <div class="project-square-front">${project.name}</div>
-            <div class="project-square-back">
-                <h3>${project.name}</h3>
-                <p>${project.description}</p>
-                <a href="${project.link}" target="_blank">View on GitHub</a>
+            <div class="project-square-inner">
+                <div class="project-square-front">${project.name}</div>
+                <div class="project-square-back">
+                    <h3>${project.name}</h3>
+                    <p>${project.description}</p>
+                    <a href="${project.link}" class="github-button" target="_blank">
+                        <i class="${buttonDetails.icon}"></i>${buttonDetails.text}
+                    </a>
+                </div>
             </div>
         `;
       projectsGrid.appendChild(projectSquare);
+
+      // Trigger the fall-in animation after a delay
+      setTimeout(() => {
+        projectSquare.classList.add('visible', 'fall-in');
+      }, index * 100);
     });
   }
 
@@ -671,7 +815,8 @@
         currentlyFlippedSquare.style.zIndex = '';
         projectsContainer.classList.remove('darkened');
         allSquares.forEach(square => {
-          square.classList.remove('darkened');
+          const inner = square.querySelector('.project-square-inner');
+          inner.classList.remove('darkened');
         });
         currentlyFlippedSquare = null;
         if (!clickedSquare) {
@@ -686,7 +831,8 @@
       projectsContainer.classList.add('darkened');
       allSquares.forEach(square => {
         if (square !== clickedSquare) {
-          square.classList.add('darkened');
+          const inner = square.querySelector('.project-square-inner');
+          inner.classList.add('darkened');
         }
       });
       currentlyFlippedSquare = clickedSquare;
