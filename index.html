@@ -672,7 +672,7 @@
     squares.forEach((square, index) => {
       setTimeout(() => {
         square.classList.add('fall-out');
-        square.classList.remove('visible', 'fall-in');
+        square.classList.remove('fall-in');
       }, (7 - index) * 100);
     });
 
