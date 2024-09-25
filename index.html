@@ -369,7 +369,12 @@
 
       .project-square.flipped .project-square-inner {
           box-shadow: none;
-          z-index: 1003;
+          min-height: 40vh;
+          max-height: 90vh;
+          height: 40vh;
+          /*overflow-y: auto;*/
+          /* Center the content */
+          margin: 0 auto;
       }
 
       .project-square.flipped .project-square-inner:hover {
@@ -585,32 +590,49 @@
       }
 
       /* Small screens (2 columns) */
-      @media screen and (max-width: 991px) {
+      @media screen and (max-width: 791px) {
           .projects-grid {
               grid-template-columns: repeat(2, 1fr);
               gap: 30px;
               max-width: 95%;
           }
+
+          .project-square-front,
+          .project-square-back {
+              font-size: 1.2em;
+              padding: 15px;
+          }
+
+          .project-square-back h3 {
+              font-size: 0.8em;
+          }
+
+          .project-square-back p {
+              font-size: 0.4em;
+          }
       }
 
       /* Extra small screens (1 column) */
-      @media screen and (max-width: 767px) {
+      @media screen and (max-width: 400px) {
           .projects-grid {
-              grid-template-columns: repeat(2, 1fr);
+              grid-template-columns: repeat(1, 1fr);
               gap: 20px;
               max-width: 100%;
               padding: 10px;
-          }
-
-          .github-button {
-              font-size: 14px;
-              padding: 5px;
           }
 
           .project-square-front,
           .project-square-back {
               font-size: 1em;
               padding: 15px;
+          }
+
+          .project-square-back h3 {
+              font-size: 0.8em;
+          }
+
+          .project-square-back p {
+              font-size: 0.5em;
           }
       }
   </style>
@@ -689,7 +711,7 @@
       link: "https://www.github.com/KeenanV/"
     },
     "Project 3": {
-      name: "AWS Secure Data Access/Management",
+      name: "AWS Secure Data Access + Management",
       description: "Soon to add a description.",
       link: "https://www.github.com/KeenanV"
     },
@@ -870,36 +892,68 @@
 
   // Add this function to calculate and apply the transform
   function flipSquare(square) {
-    const rect = square.getBoundingClientRect();
-    const squareWidth = rect.width;
-    const squareHeight = rect.height;
+    const innerSquare = square.querySelector('.project-square-inner');
+    const githubButton = square.querySelector('.github-button');
+    const githubIcon = square.querySelector('.github-button i');
+    const rect = innerSquare.getBoundingClientRect();
 
+    // Get viewport dimensions
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
+    console.log(`Screen size: ${viewportWidth} x ${viewportHeight}`)
 
-    // Calculate the center positions
+    let squareHeight = viewportHeight * 0.4;
+    let squareWidth = viewportWidth * 0.4;
+    let githubTextSize = Math.max(viewportWidth, viewportHeight) / 90;
+    let githubIconSize = githubTextSize * 1.4;
+    let githubIconWidth = githubIconSize + 2;
+
+    if (viewportHeight < viewportWidth) {
+      squareHeight = viewportHeight * 0.4;
+      squareWidth = viewportWidth * 0.3;
+    } else if (viewportHeight > viewportWidth) {
+      squareHeight = viewportHeight * 0.45;
+      squareWidth = viewportWidth * 0.45;
+    }
+
+    // Desired maximum dimensions
+    const maxWidth = viewportWidth * 0.9; // 90% of viewport width
+    const maxHeight = viewportHeight * 0.9; // 90% of viewport height
+
+    // Calculate scale factors
+    const scaleX = maxWidth / squareWidth;
+    const scaleY = maxHeight / squareHeight;
+    const scale = Math.min(scaleX, scaleY, 2); // Limit maximum scale to 2
+
+    // Calculate translation to center the square
     const squareCenterX = rect.left + squareWidth / 2;
     const squareCenterY = rect.top + squareHeight / 2;
     const viewportCenterX = viewportWidth / 2;
     const viewportCenterY = viewportHeight / 2;
-
-    // Calculate the translation needed
     const translateX = viewportCenterX - squareCenterX;
     const translateY = viewportCenterY - squareCenterY;
 
-    // Scale factor
-    const scaleFactor = 2; // Adjust as needed
-
-    // Apply the transform
-    square.querySelector('.project-square-inner').style.transform = `
-        translate(${translateX}px, ${translateY}px) scale(${scaleFactor}) rotateY(180deg)
+    innerSquare.style.height = `${squareHeight}px`;
+    innerSquare.style.width = `${squareWidth}px`;
+    githubButton.style.fontSize = `${githubTextSize}px`;
+    githubIcon.style.fontSize = `${githubIconSize}px`;
+    githubIcon.style.width = `${githubIconWidth}px`;
+    // Apply transformations
+    innerSquare.style.transform = `
+        translate(${translateX}px, ${translateY}px)
+        scale(${scale})
+        rotateY(180deg)
     `;
+
     square.classList.add('flipped');
   }
 
   // Function to reset the transform
   function unflipSquare(square) {
-    square.querySelector('.project-square-inner').style.transform = '';
+    const innerSquare = square.querySelector('.project-square-inner');
+    innerSquare.style.transform = '';
+    innerSquare.style.height = '100%';
+    innerSquare.style.width = '100%';
     square.classList.remove('flipped');
   }
 
@@ -940,6 +994,14 @@
     // Check if we should switch back to main view
     if (e.target === projectsContainer && !currentlyFlippedSquare) {
       switchToMain();
+    }
+  });
+
+  window.addEventListener('resize', function () {
+    console.log("Resizing detected");
+    if (currentlyFlippedSquare) {
+      console.log("Flipped resizing");
+      flipSquare(currentlyFlippedSquare);
     }
   });
 </script>
