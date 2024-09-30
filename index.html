@@ -391,6 +391,23 @@
           opacity: 0;
       }
 
+      .project-square-inner.dragging {
+          transition: none;
+          cursor: grabbing;
+      }
+
+      .project-square-inner.flipped {
+          cursor: grab;
+      }
+
+      .project-square-inner.flipped:active {
+          cursor: grabbing;
+      }
+
+      .project-square-inner.dismissing {
+          transition: all 0.3s ease-out;
+      }
+
       .darkened {
           background-color: rgba(0, 0, 0, 0.8);
       }
@@ -1000,6 +1017,7 @@
         scale(${scale})
         rotateY(180deg)
     `;
+    innerSquare.classList.add('flipped');
     square.classList.add('flipped');
   }
 
@@ -1009,8 +1027,129 @@
     innerSquare.style.transform = '';
     innerSquare.style.height = '100%';
     innerSquare.style.width = '100%';
+    innerSquare.classList.remove('flipped');
     square.classList.remove('flipped');
   }
+
+  let isDragging = false;
+  let startX, startY;
+  let originalTransform = '';
+  let currentScale = 1;
+
+  function handleDragStart(e) {
+    if (!currentlyFlippedSquare) return;
+
+    isDragging = true;
+    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    innerSquare.classList.add('dragging');
+
+    if (e.type === 'mousedown') {
+      startX = e.clientX;
+      startY = e.clientY;
+    } else if (e.type === 'touchstart') {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }
+
+    originalTransform = innerSquare.style.transform;
+    currentScale = parseScale(originalTransform);
+  }
+
+  function parseScale(transform) {
+    const match = transform.match(/scale\(([^)]+)\)/);
+    return match ? parseFloat(match[1]) : 1;
+  }
+
+  function handleDrag(e) {
+    if (!isDragging) return;
+
+    let currentX, currentY;
+    if (e.type === 'mousemove') {
+      currentX = e.clientX;
+      currentY = e.clientY;
+    } else if (e.type === 'touchmove') {
+      currentX = e.touches[0].clientX;
+      currentY = e.touches[0].clientY;
+      e.preventDefault(); // Prevent scrolling on touch devices
+    }
+
+    const deltaX = (currentX - startX) / currentScale;
+    const deltaY = (currentY - startY) / currentScale;
+
+    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    // Invert the X-axis movement to account for the flipped state
+    innerSquare.style.transform = `${originalTransform} translate(${-deltaX}px, ${deltaY}px)`;
+  }
+
+  function handleDragEnd(e) {
+    if (!isDragging) return;
+
+    isDragging = false;
+    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    innerSquare.classList.remove('dragging');
+
+    let endX, endY;
+    if (e.type === 'mouseup') {
+      endX = e.clientX;
+      endY = e.clientY;
+    } else if (e.type === 'touchend') {
+      endX = e.changedTouches[0].clientX;
+      endY = e.changedTouches[0].clientY;
+    }
+
+    const deltaX = (endX - startX) / currentScale;
+    const deltaY = (endY - startY) / currentScale;
+
+    const threshold = 100 / currentScale; // Adjust threshold based on scale
+    if (Math.abs(deltaX) > threshold || Math.abs(deltaY) > threshold) {
+      dismissFlippedSquare(-deltaX, deltaY); // Invert X for dismissal
+    } else {
+      resetFlippedSquarePosition();
+    }
+  }
+
+  function dismissFlippedSquare(deltaX, deltaY) {
+    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    innerSquare.classList.add('dismissing');
+
+    const finalX = deltaX * 2;
+    const finalY = deltaY * 2;
+
+    innerSquare.style.transform = `${originalTransform} translate(${finalX}px, ${finalY}px) scale(0.5) rotateY(0deg)`;
+
+    setTimeout(() => {
+      unflipSquare(currentlyFlippedSquare);
+      resetProjectGrid();
+      currentlyFlippedSquare = null;
+    }, 300);
+  }
+
+  function resetFlippedSquarePosition() {
+    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    innerSquare.style.transition = 'transform 0.3s ease-out';
+    innerSquare.style.transform = originalTransform;
+
+    setTimeout(() => {
+      innerSquare.style.transition = '';
+    }, 300);
+  }
+
+  function resetProjectGrid() {
+    projectsContainer.classList.remove('darkened');
+    const allSquares = document.querySelectorAll('.project-square');
+    allSquares.forEach(square => {
+      const inner = square.querySelector('.project-square-inner');
+      inner.classList.remove('darkened');
+    });
+  }
+
+  // Add these event listeners
+  document.addEventListener('mousedown', handleDragStart);
+  document.addEventListener('mousemove', handleDrag);
+  document.addEventListener('mouseup', handleDragEnd);
+  document.addEventListener('touchstart', handleDragStart);
+  document.addEventListener('touchmove', handleDrag);
+  document.addEventListener('touchend', handleDragEnd);
 
   let currentlyFlippedSquare = null;
 
