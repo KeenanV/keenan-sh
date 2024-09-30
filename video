@@ -15,6 +15,7 @@
       }
 
       body {
+          background-color: #000000;
           background-image: url('background.jpg');
           background-size: cover;
           background-position: center;
@@ -85,7 +86,7 @@
     }
 
     // Get the 'person' parameter from the URL
-    const person = getUrlParameter('person');
+    const person = getUrlParameter('p');
 
     // Set up the video source
     const videoPlayer = document.getElementById('videoPlayer');
