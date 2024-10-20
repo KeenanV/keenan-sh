@@ -524,8 +524,8 @@
           position: absolute;
           top: 10px;
           right: 10px;
-          width: 35px;
-          height: 35px;
+          width: 8%;
+          aspect-ratio: 1 / 1;
           background-color: #111111;
           border: none;
           border-radius: 50%;
@@ -541,7 +541,7 @@
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          font-size: 25px;
+          font-size: 26px;
           font-weight: bolder;
           color: #ca0000;
       }
@@ -710,6 +710,7 @@
       '.link-button[data-action="contact"]');
   const contactDialog = document.getElementById('contactDialog');
   const cancelButton = document.getElementById('cancelButton');
+  let cancelSize = 20;
   const contactForm = document.getElementById('contactForm');
   const mainContent = document.querySelector('.content');
   const projectsContainer = document.querySelector('.projects-container');
@@ -787,6 +788,7 @@
       projectsGrid.style.gridTemplateColumns = 'repeat(4, 1fr)';
       projectsGrid.style.gap = '40px';
       projectsGrid.style.maxWidth = '80%';
+      cancelSize = 20;
 
       allSquares.forEach(square => {
         const front = square.querySelector('.project-square-front');
@@ -806,6 +808,7 @@
       projectsGrid.style.gridTemplateColumns = 'repeat(3, 1fr)';
       projectsGrid.style.gap = '30px';
       projectsGrid.style.maxWidth = '90%';
+      cancelSize = 17;
 
       allSquares.forEach(square => {
         const front = square.querySelector('.project-square-front');
@@ -826,6 +829,7 @@
       projectsGrid.style.gridTemplateColumns = 'repeat(2, 1fr)';
       projectsGrid.style.gap = '20px';
       projectsGrid.style.maxWidth = '80%';
+      cancelSize = 13;
 
       allSquares.forEach(square => {
         const front = square.querySelector('.project-square-front');
@@ -845,6 +849,7 @@
       projectsGrid.style.gridTemplateColumns = 'repeat(1, 1fr)';
       projectsGrid.style.gap = '15px';
       projectsGrid.style.maxWidth = '100%';
+      cancelSize = 11;
 
       allSquares.forEach(square => {
         const front = square.querySelector('.project-square-front');
@@ -1026,6 +1031,8 @@
     const innerSquare = square.querySelector('.project-square-inner');
     const githubButton = square.querySelector('.github-button');
     const githubIcon = square.querySelector('.github-button i');
+    const closeButton = square.querySelector('.close-button');
+    const closeIcon = square.querySelector('.close-button i');
     const backSquareHeading = square.querySelector('.project-square-back h3');
     const backSquareBody = square.querySelector('.project-square-back p');
     const rect = innerSquare.getBoundingClientRect();
@@ -1033,13 +1040,15 @@
     // Get viewport dimensions
     const viewportWidth = window.innerWidth;
     const viewportHeight = window.innerHeight;
-    console.log(`Screen size: ${viewportWidth} x ${viewportHeight}`)
+    console.log(`Screen size: ${viewportWidth} x ${viewportHeight}`);
 
     let squareHeight = viewportHeight * 0.4;
     let squareWidth = viewportWidth * 0.4;
     let githubTextSize = Math.max(viewportWidth, viewportHeight) / 90;
     let githubIconSize = githubTextSize * 1.4;
     let githubIconWidth = githubIconSize + 2;
+    let closeButtonSize = (Math.max(squareWidth, squareHeight) / Math.min(squareWidth, squareHeight)) * cancelSize;
+    console.log(`Close button size: ${closeButtonSize}`);
     let backSquareBodyTextSize = githubTextSize;
     let backSquareHeadingTextSize = backSquareBodyTextSize * 2;
 
@@ -1075,6 +1084,8 @@
     githubButton.style.fontSize = `${githubTextSize}px`;
     githubIcon.style.fontSize = `${githubIconSize}px`;
     githubIcon.style.width = `${githubIconWidth}px`;
+    closeButton.style.width = `${closeButtonSize}px`;
+    closeIcon.style.fontSize = `${closeButtonSize * 0.72}px`;
     // Apply transformations
     innerSquare.style.transform = `
         translate(${translateX}px, ${translateY}px)
@@ -1082,7 +1093,6 @@
         rotateY(180deg)
     `;
 
-    const closeButton = square.querySelector('.close-button');
     closeButton.style.display = 'flex';
 
     innerSquare.classList.add('flipped');
