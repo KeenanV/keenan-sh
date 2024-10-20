@@ -520,9 +520,50 @@
           text-align: center;
       }
 
+      .close-button {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          width: 35px;
+          height: 35px;
+          background-color: #111111;
+          border: none;
+          border-radius: 50%;
+          cursor: pointer;
+          box-shadow: 2px 3px #8607ce;
+          padding: 0;
+          overflow: hidden;
+          transition: all 0.1s ease;
+      }
+
+      .close-button i {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          font-size: 25px;
+          font-weight: bolder;
+          color: #ca0000;
+      }
+
+      /*.close-button::after {*/
+      /*    content: '\00D7';  !* Unicode for "×" *!*/
+      /*    display: block;*/
+      /*    transform: translate(0.5px, -2.5px);  !* Slight upward adjustment *!*/
+      /*}*/
+
+      .close-button:hover {
+          transform: translateY(-2px);
+          box-shadow: 3px 4px #8607ce;
+      }
+
+      .close-button:active {
+          transform: translateY(3px);
+          box-shadow: 0 0 #8607ce;
+      }
+
       .project-square-back h3 {
-          margin-top: 10px;
-          margin-bottom: 10px;
+          margin: 20px 10px 10px;
       }
 
       .project-square-back p {
@@ -949,6 +990,9 @@
             <div class="project-square-inner">
                 <div class="project-square-front">${project.name}</div>
                 <div class="project-square-back">
+                    <button class="close-button">
+                        <i class="fas fa-circle-xmark"></i>
+                    </button>
                     <h3>${project.name}</h3>
                     <p>${project.description}</p>
                     <a href="${project.link}" ${((project.link) ? '' : 'onclick="return false;"')} class="github-button" target="_blank">
@@ -958,6 +1002,17 @@
             </div>
         `;
       projectsGrid.appendChild(projectSquare);
+
+      // Add event listener for the close button
+      const closeButton = projectSquare.querySelector('.close-button');
+      closeButton.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event from bubbling up
+        if (currentlyFlippedSquare) {
+          unflipSquare(currentlyFlippedSquare);
+          resetProjectGrid();
+          currentlyFlippedSquare = null;
+        }
+      });
 
       // Trigger the fall-in animation after a delay
       setTimeout(() => {
@@ -1026,6 +1081,10 @@
         scale(${scale})
         rotateY(180deg)
     `;
+
+    const closeButton = square.querySelector('.close-button');
+    closeButton.style.display = 'flex';
+
     innerSquare.classList.add('flipped');
     square.classList.add('flipped');
   }
@@ -1038,6 +1097,9 @@
     innerSquare.style.width = '100%';
     innerSquare.classList.remove('flipped');
     square.classList.remove('flipped');
+
+    const closeButton = square.querySelector('.close-button');
+    closeButton.style.display = 'none';
   }
 
   let isDragging = false;
@@ -1204,7 +1266,7 @@
       }
     }
 
-    if (clickedSquare && clickedSquare !== currentlyFlippedSquare) {
+    if (clickedSquare && !e.target.closest('.close-button') && clickedSquare !== currentlyFlippedSquare) {
       flipSquare(clickedSquare);
       projectsContainer.classList.add('darkened');
       allSquares.forEach(square => {
