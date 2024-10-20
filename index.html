@@ -25,6 +25,13 @@
           background-attachment: fixed;
       }
 
+      body.no-scroll {
+          overflow: hidden;
+          position: fixed;
+          width: 100%;
+          height: 100%;
+      }
+
       .container {
           min-height: 100%;
           display: flex;
@@ -135,7 +142,7 @@
           margin: 15% auto;
           padding: 20px;
           border: 1px solid #888;
-          width: 80%;
+          width: 95%;
           max-width: 500px;
           border-radius: 10px;
           box-sizing: border-box;
@@ -394,10 +401,12 @@
       .project-square-inner.dragging {
           transition: none;
           cursor: grabbing;
+          touch-action: none;
       }
 
       .project-square-inner.flipped {
           cursor: grab;
+          touch-action: none;
       }
 
       .project-square-inner.flipped:active {
@@ -673,7 +682,7 @@
     "Project 2": {
       name: "LinkedIn Scraper + Graph Database",
       description: "Scraped data from LinkedIn using Selenium in Python to collect 1st and 2nd degree connections plus their work history and compile it all into a neo4j graph database",
-      link: "https://www.github.com/KeenanV/"
+      link: "https://www.github.com/KeenanV/connections"
     },
     "Project 3": {
       name: "AWS Secure Data Access + Management",
@@ -707,8 +716,8 @@
     },
     "Project 9": {
       name: "iOS App 'One Step'",
-      description: "IN PROGRESS. Working on an app that aims to take the overwhelm out of looking at a big todo list. The app will display only one task from a list (and will randomly select one if the user would like), until that task is done. There will be streaks, points, and sharing abilities to keep users motivated.",
-      link: "https://www.github.com/KeenanV"
+      description: "IN PROGRESS. Working on an app that aims to take the overwhelm out of looking at a big todo list. The app will display only one task from a list (and will randomly select one if the user would like), until that task is done. There will be streaks, points, and sharing abilities to keep users motivated. FYI, this project is not public on GitHub yet because I haven't released the app",
+      link: ""
     },
   }
 
@@ -865,7 +874,7 @@
       if (action === 'contact') {
         console.log("Get in Touch button clicked");
         contactDialog.style.display = 'block';
-        document.body.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        document.body.style.backgroundColor = '#000000';
       } else if (action === 'projects') {
         console.log("Projects button clicked");
         switchToProjects();
@@ -877,7 +886,7 @@
   document.addEventListener('click', function (e) {
     if (e.target === contactDialog) {
       contactDialog.style.display = 'none';
-      document.body.style.backgroundColor = '';
+      document.body.style.backgroundColor = '#000000';
     }
   });
 
@@ -926,7 +935,7 @@
     } else if (link.includes('darpa.mil')) {
       return {text: 'View on DARPA', icon: 'fas fa-shield-halved'};
     } else {
-      return {text: 'View Project', icon: 'fas fa-external-link-alt'};
+      return {text: 'Link Coming Soon', icon: 'fas fa-hammer'};
     }
   }
 
@@ -942,7 +951,7 @@
                 <div class="project-square-back">
                     <h3>${project.name}</h3>
                     <p>${project.description}</p>
-                    <a href="${project.link}" class="github-button" target="_blank">
+                    <a href="${project.link}" ${((project.link) ? '' : 'onclick="return false;"')} class="github-button" target="_blank">
                         <i class="${buttonDetails.icon}"></i>${buttonDetails.text}
                     </a>
                 </div>
@@ -1035,12 +1044,16 @@
   let startX, startY;
   let originalTransform = '';
   let currentScale = 1;
+  let scrollY = 0;
 
   function handleDragStart(e) {
-    if (!currentlyFlippedSquare) return;
+    if (!currentlyFlippedSquare) {
+      return;
+    }
 
     isDragging = true;
-    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    const innerSquare = currentlyFlippedSquare.querySelector(
+        '.project-square-inner');
     innerSquare.classList.add('dragging');
 
     if (e.type === 'mousedown') {
@@ -1053,6 +1066,11 @@
 
     originalTransform = innerSquare.style.transform;
     currentScale = parseScale(originalTransform);
+
+    // Prevent scrolling
+    scrollY = window.scrollY;
+    document.body.classList.add('no-scroll');
+    document.body.style.top = `-${scrollY}px`;
   }
 
   function parseScale(transform) {
@@ -1061,7 +1079,9 @@
   }
 
   function handleDrag(e) {
-    if (!isDragging) return;
+    if (!isDragging) {
+      return;
+    }
 
     let currentX, currentY;
     if (e.type === 'mousemove') {
@@ -1076,16 +1096,20 @@
     const deltaX = (currentX - startX) / currentScale;
     const deltaY = (currentY - startY) / currentScale;
 
-    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    const innerSquare = currentlyFlippedSquare.querySelector(
+        '.project-square-inner');
     // Invert the X-axis movement to account for the flipped state
     innerSquare.style.transform = `${originalTransform} translate(${-deltaX}px, ${deltaY}px)`;
   }
 
   function handleDragEnd(e) {
-    if (!isDragging) return;
+    if (!isDragging) {
+      return;
+    }
 
     isDragging = false;
-    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    const innerSquare = currentlyFlippedSquare.querySelector(
+        '.project-square-inner');
     innerSquare.classList.remove('dragging');
 
     let endX, endY;
@@ -1106,10 +1130,16 @@
     } else {
       resetFlippedSquarePosition();
     }
+
+    // Re-enable scrolling
+    document.body.classList.remove('no-scroll');
+    document.body.style.top = '';
+    window.scrollTo(0, scrollY);
   }
 
   function dismissFlippedSquare(deltaX, deltaY) {
-    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    const innerSquare = currentlyFlippedSquare.querySelector(
+        '.project-square-inner');
     innerSquare.classList.add('dismissing');
 
     const finalX = deltaX * 2;
@@ -1125,7 +1155,8 @@
   }
 
   function resetFlippedSquarePosition() {
-    const innerSquare = currentlyFlippedSquare.querySelector('.project-square-inner');
+    const innerSquare = currentlyFlippedSquare.querySelector(
+        '.project-square-inner');
     innerSquare.style.transition = 'transform 0.3s ease-out';
     innerSquare.style.transform = originalTransform;
 
