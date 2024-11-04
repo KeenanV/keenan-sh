@@ -909,7 +909,6 @@
 
   document.addEventListener('click', function (e) {
     if (e.target.closest('.link-button')) {
-      e.preventDefault();
       const action = e.target.closest('.link-button').dataset.action;
 
       if (action === 'contact') {
